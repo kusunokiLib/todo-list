@@ -1,19 +1,19 @@
 # Ignore bundler config.
-server/.bundle
+/.bundle
 
 # Ignore bundler gems.
-server/vendor/bundle
+/vendor/bundle
 
 # Ignore the default SQLite database.
-server/db/*.sqlite3
-server/db/*.sqlite3-journal
+/db/*.sqlite3
+/db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
-server/log/*.log
-server/tmp
+/log/*.log
+/tmp
 
 # Ignore other unneeded files.
-server/doc/
+/doc/
 *.swp
 *~
 .project
