@@ -1,60 +1,121 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
+    <form v-on:submit.prevent="postTask">
+      <input id="new-task-form" type="text" v-model="newTask" placeholder="やりたいことは...">
+    </form>
+    <ul id="task-list">
+      <li class="task" v-for="task in tasks"><p>{{ task.text }}</p><button class="delete-button" v-on:click="deleteTask(task.id)">×</button></li>
     </ul>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
+const hostName = '172.30.1.91:3000';
+const path = '/api/tasks'
+
 export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      tasks: [],
+      newTask: '',
     }
+  },
+  methods: {
+    getTasks: function() {
+      axios.get(`http://${hostName}${path}`)
+        .then((response) => {
+          this.tasks = response.data;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    postTask: function() {
+      axios.post(`http://${hostName}${path}`,
+          `task[text]=${this.newTask}`
+        )
+        .then((response) => {
+          this.getTasks();
+          this.newTask = '';
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    deleteTask: function(id) {
+      axios.delete(`http://${hostName}${path}/${id}`)
+        .then((response) => {
+          this.getTasks();
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
+  },
+  mounted: function() {
+    this.getTasks();
   }
 }
 </script>
 
 <style lang="scss">
+
+$list-item-height:   30px;
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
-h1, h2 {
-  font-weight: normal;
+#new-task-form {
+  width: 100%;
+  height: $list-item-height;
 }
 
-ul {
+#task-list {
+  width: 100%;
   list-style-type: none;
+  margin: 0;
   padding: 0;
 }
 
-li {
-  display: inline-block;
-  margin: 0 10px;
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: $list-item-height;
+  border-bottom: dashed 1px gray;
+
+  p {
+    margin: 0;
+    padding-left: 10px;
+  }
 }
 
-a {
-  color: #42b983;
+.delete-button {
+  width: 20px;
+  height: 20px;
+  margin: 0 8px;
+  background-color: gray;
+  color: white;
+  border: none;
+  border-radius: 50%;
 }
+
 </style>
